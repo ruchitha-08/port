@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form</title>
+    <style>
+        h1{
+    text-align: center;
+    color: rgb(37, 161, 93);
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+form{
+    background-color:rgb(96, 145, 134);
+    width:60vw;
+    max-width: 500px;
+    min-width: 400px;
+    margin: 0 auto;  
+}
+input{
+    margin-bottom: 10px;
+    display:block;
+    margin-left: 30%;
+}
+
+label {
+    margin-left: 30%;
+    font-size: large;
+    margin: 0.5rem 0;
+  }
+#acceptTerms{
+    display: inline;
+}
+input:invalid:focus {
+    border: 2px solid red;
+  }
+  
+  .table {
+    border: 2px solid black;
+    margin: 40px auto;
+  }
+  
+  .td,
+  .th {
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .subHead {
+    text-align: center;
+    margin-top: 2rem;
+  }
+  .text_center{
+    color: red;
+  }
+button {
+    background-color:rgb(229, 63, 63);
+    color: rgb(254, 254, 255);
+    padding: 10px 20px;
+    font-size: medium;
+    font-weight: 400;
+    border-radius: 10px;
+    display: block;
+    align-content: center;
+
+  } 
+.adjust{
+    margin-left: 30%;
+}
+#submit{
+    margin-left: 30%;
+}
+.top{
+    margin-top: 10px;
+}
+    </style>
+</head>
+<body>
+    <h1>Registration Form</h1>
+<form id="form">
+    <label for="name" class="adjust top">Name</label>
+    <input type="text" id="name" name="name" required placeholder="Enter your Name"> 
+ 
+    <label for="email" class="adjust">Email</label>
+    <input type="email" id="email" name="email" required placeholder="Enter your Email">
+ 
+    <label for="password" class="adjust">Password</label>
+    <input type="password" id="password" name="password" required placeholder="Enter your password">
+ 
+    <label for="dob" class="adjust">Date of Birth</label>
+    <input type="date" id="dob" name="dob" required >
+ 
+    <input type="checkbox" id="acceptTerms" name="acceptTerms">
+    <label for="acceptTerms">Accept Terms & Conditions</label>
+ 
+    <button id="submit" type="submit">Submit</button>
+ </form> 
+ <div>
+ <h1 class="subHead">Entries</h1>
+ <div id="tableDiv" class="table">
+ </div>
+ </div>
+ <script>
+    let user_form = document.getElementById("form");
+const retriveEntries = () => {
+  let entries = localStorage.getItem("userEntry");
+
+  if (entries) {
+    entries = JSON.parse(entries);
+  } else {
+    entries = [];
+  }
+  return entries;
+};
+let Entries = retriveEntries();
+
+const displayEntries = () => {
+  const entries = retriveEntries();
+
+  const rows = entries
+    .map((entry) => {
+      const name = `<td class="td">${entry.name}</td>`;
+      const email = `<td class="td">${entry.email}</td>`;
+      const password = `<td class="td">${entry.password}</td>`;
+      const dob = `<td class="td">${entry.dob}</td>`;
+      const acceptConditions = `<td class="td">${entry.acceptConditions}</td>`;
+
+      const row = `<tr>${name} ${email} ${password} ${dob} ${acceptConditions}</tr>`;
+      return row;
+    })
+    .join("\n");
+
+  let tableDiv = document.getElementById("tableDiv");
+
+  tableDiv.innerHTML = `<table class="table" border="1">
+  <tr>
+    <th class="th">Name</th>
+    <th class="th">Email</th>
+    <th class="th">Password</th>
+    <th class="th">Dob</th>
+    <th class="th">Accepted terms?</th>
+  </tr>
+    ${rows}
+  </table>`;
+};
+const saveUserFrom = (event) => {
+  event.preventDefault();
+
+  let name = document.getElementById("name").value;
+  let email = document.getElementById("email").value;
+  let password = document.getElementById("password").value;
+  let dob = document.getElementById("dob").value;
+  let acceptConditions = document.getElementById("acceptTerms").checked;
+
+  let entry_obj = {
+    name,
+    email,
+    password,
+    dob,
+    acceptConditions,
+  };
+
+  Entries.push(entry_obj);
+
+  localStorage.setItem("userEntry", JSON.stringify(Entries));
+
+  displayEntries();
+};
+
+user_form.addEventListener("submit", saveUserFrom);
+
+displayEntries();
+
+
+let setdate = document.getElementById("dob");
+
+setdate.addEventListener("change", () => {
+  let [year, month, date] = document.getElementById("dob").value.split("-");
+
+  let dob = new Date(year, month, date);
+
+  let month_diff = Date.now() - dob.getTime();  
+      
+  //convert the calculated difference in date format  
+  let age_dt = new Date(month_diff);   
+    
+  //extract year from date      
+  let year_ = age_dt.getUTCFullYear();  
+    
+  //now calculate the age of the user  
+  let age = Math.abs(year_ - 1970);
+
+  setdate.style.border = "2px solid rgba(0, 0, 0, 0.4)";
+  if (age < 18 || age > 55) {
+    setdate.setCustomValidity("Your age doesn't lie between 18 and 55");
+    setdate.style.border = "2px solid red";
+    return;
+  } else {
+    setdate.setCustomValidity("");
+  }
+});
+
+const email = document.getElementById("email");
+
+email.addEventListener("input", () => validate(email));
+
+function validate(ele) {
+  if (ele.validity.typeMismatch) {
+    ele.setCustomValidity("The Email is not in the right format!!!");
+    ele.reportValidity();
+  } else {
+    ele.setCustomValidity("");
+  }
+}
+ </script>
+</body>
+</html>
